@@ -241,6 +241,15 @@
   .submit-btn{ align-self:flex-start; margin-top:6px; }
   .form-note{ font-size:12px; color:var(--text-faint); margin-top:10px; }
 
+  .review-card{
+    background:var(--bg-card); border:1px solid var(--line); border-radius:18px;
+    padding:26px; margin-top:22px; color:var(--text);
+  }
+  .review-stars{ font-family:var(--disp); color:var(--blue-bright); letter-spacing:0.04em; margin-bottom:10px; }
+  .review-message{ font-size:15px; line-height:1.8; margin-bottom:14px; color:var(--silver-bright); }
+  .review-author{ font-size:13px; color:var(--text-faint); }
+  .review-empty{ color:var(--text-faint); font-size:13px; }
+
   /* FOOTER */
   footer{ padding:60px 8vw 30px; border-top:1px solid var(--line); }
   .footer-top{ display:flex; justify-content:space-between; flex-wrap:wrap; gap:40px; margin-bottom:50px; }
@@ -513,10 +522,29 @@
           </select>
         </div>
       </div>
-      <div><label>Message</label><textarea name="message" placeholder="Tell us about your business and what you need..."></textarea></div>
+      <div>
+        <label>Rating</label>
+        <select name="rating" required>
+          <option value="">Select a rating</option>
+          <option value="5">★★★★★ Excellent</option>
+          <option value="4">★★★★ Good</option>
+          <option value="3">★★★ Average</option>
+          <option value="2">★★ Below average</option>
+          <option value="1">★ Poor</option>
+        </select>
+      </div>
+      <div><label>Message</label><textarea name="message" placeholder="Tell us about your business and what you need..." required></textarea></div>
       <button type="submit" class="btn btn-primary submit-btn hoverable">Send Message</button>
       <p class="form-note" aria-live="polite">We’ll receive your request and reply directly from the backend.</p>
     </form>
+  </div>
+</section>
+
+<section id="reviews" class="reveal">
+  <div class="eyebrow">Client feedback</div>
+  <h2>Recent review</h2>
+  <div class="review-card" id="latest-review">
+    <p class="review-empty">No client feedback yet. Submit the form to share your rating and review on the site.</p>
   </div>
 </section>
 
@@ -610,8 +638,8 @@ if(contactForm && formNote){
     const submitButton = contactForm.querySelector('button[type="submit"]');
     const payload = Object.fromEntries(new FormData(contactForm));
 
-    if(!payload.name || !payload.email || !payload.message){
-      formNote.textContent = 'Please add your name, email, and a short message before sending.';
+    if(!payload.name || !payload.email || !payload.rating || !payload.message){
+      formNote.textContent = 'Please add your name, email, rating, and feedback before sending.';
       return;
     }
 
@@ -627,6 +655,7 @@ if(contactForm && formNote){
       });
       const result = await response.json();
       formNote.textContent = result.message || 'Thanks! Your request was received.';
+      showLatestReview(payload);
       contactForm.reset();
     } catch (error) {
       formNote.textContent = 'Unable to reach the backend right now. Please email us directly.';
@@ -635,6 +664,17 @@ if(contactForm && formNote){
       submitButton.textContent = 'Send Message';
     }
   });
+}
+
+function showLatestReview({ name, rating, message }) {
+  const reviewRoot = document.getElementById('latest-review');
+  if (!reviewRoot) return;
+  const numericRating = Number(rating) || 0;
+  reviewRoot.innerHTML = `
+    <div class="review-stars">${'★'.repeat(numericRating)}${'☆'.repeat(5 - numericRating)}</div>
+    <p class="review-message">"${message || 'No feedback provided.'}"</p>
+    <p class="review-author">— ${name || 'Anonymous client'}</p>
+  `;
 }
 
 // ---- Circuit background canvas ----

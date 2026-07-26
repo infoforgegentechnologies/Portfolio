@@ -73,11 +73,11 @@ app.post('/api/contact', async (req, res) => {
 });
 
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index (5).html'));
+  res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index (5).html'));
+  res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 if (require.main === module) {
